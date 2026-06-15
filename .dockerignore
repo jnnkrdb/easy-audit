@@ -1,0 +1,28 @@
+# Ignore files and directories that are not needed in the Docker image
+
+# Version control and IDE files
+.github/
+.devcontainer/
+.git/
+.idea/
+.vscode/
+.gitignore
+.gitattributes
+
+# builds and build files
+dist/
+build/
+bin/
+Makefile
+Readme.md
+LICENSE
+Dockerfile
+.dockerignore
+
+# test artifacts & logs
+coverage/
+logs/
+*.log
+*.tmp
+*.test
+
