@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jnnkrdb/easy-audit/cmd/server/api"
+	"github.com/jnnkrdb/easy-audit/cmd/server/health"
 )
 
 var (
@@ -31,7 +33,13 @@ func Start() {
 		}
 	}()
 
-	AddHandlers()
+	slog.Debug("add additional handlers to http backend")
+
+	// register routes for health checks
+	health.LoadRoutes(mx)
+
+	// register routes for audits
+	api.LoadRoutes(mx)
 
 	if err := (&http.Server{
 		Handler:      mx,
@@ -41,19 +49,4 @@ func Start() {
 	}).ListenAndServe(); err != nil {
 		slog.Error("error keeping http server alive", "error", err)
 	}
-}
-
-// add other handlers to the http mux
-func AddHandlers() {
-
-	// add health checks to server
-	mx.HandleFunc("/health/livez", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "ok")
-	}).Methods("GET")
-
-	mx.HandleFunc("/health/readyz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "ok")
-	}).Methods("GET")
 }
