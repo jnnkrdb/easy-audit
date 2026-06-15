@@ -10,18 +10,23 @@ ENV CGO_ENABLED=0
 ENV GOARCH=amd64
 ENV GOOS=linux
 # START BUILD
-RUN go mod download && go build -o /easy-audit /github.com/jnnkrdb/easy-audit/main.go
+RUN go mod download && go build -o /easy-audit /github.com/jnnkrdb/easy-audit/cmd/main.go
 # ---------------------------------------------------------------------------------------------- Final Alpine
 FROM alpine:3.22.0
 LABEL org.opencontainers.image.source="https://github.com/jnnkrdb/easy-audit"
 LABEL org.opencontainers.image.author="jnnkrdb"
-LABEL org.opencontainers.image.description="KeyValue Store in Go."
+LABEL org.opencontainers.image.description="Audit Store in Go."
 WORKDIR /
 # install neccessary binaries
 RUN apk add --no-cache --update openssl
 # Copy the Directory Contents
-RUN mkdir /opt/easy-audit
-COPY opt/ /opt/easy-audit
+RUN mkdir /opt/easy-audit &&\
+    mkdir /opt/easy-audit/config &&\
+    mkdir /opt/easy-audit/data &&\
+    mkdir /opt/easy-audit/logs &&\
+    mkdir /opt/easy-audit/certs &&\
+    mkdir /opt/easy-audit/keys
+
 # create user with home dir
 RUN addgroup -S easy-audit && adduser -S easy-audit -H -h /opt/easy-audit -s /bin/sh -G easy-audit -u 3453
 # Copy Binary
