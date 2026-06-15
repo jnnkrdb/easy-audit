@@ -1,0 +1,6 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/go",
+  "features": {
+    "ghcr.io/jungaretti/features/make:1": {}
+  }
+}
