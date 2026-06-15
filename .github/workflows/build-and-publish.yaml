@@ -13,7 +13,6 @@ on:
       
 jobs:
   build:
-    needs: version
     runs-on: ubuntu-latest
     env:
       REPOSITORY: ghcr.io/jnnkrdb/easy-audit
