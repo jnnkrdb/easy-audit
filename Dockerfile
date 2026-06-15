@@ -42,5 +42,4 @@ ENV EASY_AUDIT_HOME="/opt/easy-audit"
 ENV EASY_AUDIT_BINARY_PATH="/usr/local/bin/easy-audit"
 # set the entrypoints
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD [ "easy-audit" ]
-ARG ["--server"]
+CMD [ "easy-audit", "--server"]
