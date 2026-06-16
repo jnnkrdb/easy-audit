@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gorilla/mux"
-	v1 "github.com/jnnkrdb/easy-audit/cmd/server/api/v1"
 )
 
 // LoadRoutes registers the API routes on the provided router.
@@ -11,8 +10,6 @@ import (
 //
 // Pathprefix: /api
 func LoadRoutes(ep *mux.Router) {
-
 	_api := ep.PathPrefix("/api/").Subrouter()
-
-	v1.LoadRoutes(_api)
+	apiv1Audits(_api)
 }

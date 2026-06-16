@@ -1,32 +1,25 @@
-package main
+package logging
 
 import (
 	"flag"
 	"log/slog"
 	"os"
-
-	"github.com/jnnkrdb/easy-audit/cmd/server"
 )
 
 var (
-
-	// start in server mode if the flag is set, otherwise do nothing
-	serverMode = flag.Bool("server", false, "Start in server mode")
-
 	// logging
 	logLevel   = flag.String("log-level", "error", "Set the log level (debug, info, warn, error)")
-	logVerbose = flag.Bool("v", false, "Prints the source of logs when set to true.")
+	logVerbose = flag.Bool("verbose", false, "Prints the source of logs when set to true.")
 	logFormat  = flag.String("log-format", "text", "Set the log format (text, json)")
 )
 
-func main() {
-
-	flag.Parse()
+// initializes the logger with default settings.
+func InitLogger() {
 
 	// configure logging
 	var opts = &slog.HandlerOptions{
 		AddSource: logVerbose != nil && *logVerbose,
-		Level:     slog.LevelError, // default log level is error, can be overridden by env var LOG_LEVEL
+		Level:     slog.LevelError, // default log level is error, can be overridden by cli flag --log-level
 	}
 	switch *logLevel {
 	case "info":
@@ -44,10 +37,4 @@ func main() {
 	}
 
 	slog.Debug("log initialized", "level", opts.Level, "add_source", opts.AddSource)
-
-	// if set to server mode, start in server mode by default
-	if *serverMode {
-		// Start in server mode
-		server.Start()
-	}
 }

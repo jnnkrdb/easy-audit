@@ -11,12 +11,12 @@ type AuditRow struct {
 	Timestamp   int64  `json:"timestamp"`
 	Action      string `json:"action"`
 	User        string `json:"user"`
-	Destination string `json:"destination"`
 	Resource    string `json:"resource"`
-	Outcome     string `json:"outcome"`
+	Result      string `json:"result"`
 	FurtherInfo string `json:"further_info"`
 }
 
+// Validate checks if the AuditRow has all required fields and if the action is valid. It returns an error if any validation fails.
 func (a *AuditRow) Validate() error {
 	if a.ID == "" {
 		return fmt.Errorf("id is required")
@@ -37,6 +37,14 @@ func (a *AuditRow) Validate() error {
 
 	if a.User == "" {
 		return fmt.Errorf("user is required")
+	}
+
+	if a.Resource == "" {
+		return fmt.Errorf("resource is required")
+	}
+
+	if a.Result == "" {
+		return fmt.Errorf("result is required")
 	}
 
 	return nil
