@@ -24,14 +24,14 @@ func (d *Database) List(ctx context.Context) ([]audits.AuditRow, error) {
 	return nil, nil
 }
 
-func (d *Database) Read(ctx context.Context, id string) (audits.AuditRow, error) {
-	slog.WarnContext(ctx, "Read() not implemented")
-	return audits.AuditRow{}, nil
+func (d *Database) Get(ctx context.Context, id string) (audits.AuditRow, bool, error) {
+	slog.WarnContext(ctx, "Get() not implemented")
+	return audits.AuditRow{}, false, nil
 }
 
-func (d *Database) Write(ctx context.Context, audit audits.AuditRow) error {
+func (d *Database) Write(ctx context.Context, audit audits.AuditRow) (audits.AuditRow, error) {
 	slog.WarnContext(ctx, "Write() not implemented")
-	return nil
+	return audits.AuditRow{}, nil
 }
 
 func (d *Database) Delete(ctx context.Context, id string) error {

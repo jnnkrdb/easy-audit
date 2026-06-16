@@ -37,21 +37,21 @@ func (c *Cache) List(ctx context.Context) ([]audits.AuditRow, error) {
 	return res, nil
 }
 
-func (c *Cache) Read(ctx context.Context, id string) (audits.AuditRow, error) {
+func (c *Cache) Get(ctx context.Context, id string) (audits.AuditRow, bool, error) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 	audit, exists := c.db[id]
 	if !exists {
-		return audits.AuditRow{}, nil
+		return audits.AuditRow{}, false, nil
 	}
-	return audit, nil
+	return audit, true, nil
 }
 
-func (c *Cache) Write(ctx context.Context, audit audits.AuditRow) error {
+func (c *Cache) Write(ctx context.Context, audit audits.AuditRow) (audits.AuditRow, error) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 	c.db[audit.ID] = audit
-	return nil
+	return audit, nil
 }
 
 func (c *Cache) Delete(ctx context.Context, id string) error {

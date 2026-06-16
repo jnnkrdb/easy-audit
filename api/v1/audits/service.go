@@ -16,13 +16,13 @@ func (s *AuditsService) List(ctx context.Context) ([]AuditRow, error) {
 	return s.store.List(ctx)
 }
 
-func (s *AuditsService) Get(ctx context.Context, id string) (AuditRow, error) {
+func (s *AuditsService) Get(ctx context.Context, id string) (AuditRow, bool, error) {
 	return s.store.Get(ctx, id)
 }
 
-func (s *AuditsService) Write(ctx context.Context, audit AuditRow) error {
+func (s *AuditsService) Write(ctx context.Context, audit AuditRow) (AuditRow, error) {
 	if err := audit.Validate(); err != nil {
-		return err
+		return AuditRow{}, err
 	}
 	return s.store.Write(ctx, audit)
 }

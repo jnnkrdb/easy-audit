@@ -11,11 +11,14 @@ import (
 	"github.com/jnnkrdb/easy-audit/cmd/server/api"
 	"github.com/jnnkrdb/easy-audit/cmd/server/health"
 	"github.com/jnnkrdb/easy-audit/int/logging"
+	"github.com/jnnkrdb/easy-audit/int/storage"
 )
 
 var (
 	// http endpoint
 	mx *mux.Router = mux.NewRouter()
+
+	storageProvider = flag.String("storage-provider", "memory", "the storage provider to use for audits, options are: memory, database")
 )
 
 const (
@@ -34,8 +37,14 @@ func main() {
 	// register routes for health checks
 	health.LoadRoutes(mx)
 
+	store, err := storage.GetStorageProvider(*storageProvider, "")
+	if err != nil {
+		slog.Error("error initializing storage provider", "error", err)
+		return
+	}
+
 	// register routes for audits
-	api.LoadRoutes(mx)
+	api.LoadRoutes(mx, store)
 
 	slog.Info("starting http server", "port", serverPortHttp)
 	if err := (&http.Server{
