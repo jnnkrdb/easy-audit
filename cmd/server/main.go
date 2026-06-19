@@ -13,6 +13,8 @@ import (
 	"github.com/jnnkrdb/easy-audit/cmd/server/api"
 	"github.com/jnnkrdb/easy-audit/cmd/server/health"
 	"github.com/jnnkrdb/easy-audit/int/logging"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
