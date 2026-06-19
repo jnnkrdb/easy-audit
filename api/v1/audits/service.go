@@ -20,11 +20,18 @@ func (s *AuditsService) Get(ctx context.Context, id string) (AuditRow, bool, err
 	return s.store.Get(ctx, id)
 }
 
-func (s *AuditsService) Write(ctx context.Context, audit AuditRow) (AuditRow, error) {
+func (s *AuditsService) Create(ctx context.Context, audit AuditRow) (AuditRow, error) {
 	if err := audit.Validate(); err != nil {
 		return AuditRow{}, err
 	}
-	return s.store.Write(ctx, audit)
+	return s.store.Create(ctx, audit)
+}
+
+func (s *AuditsService) Update(ctx context.Context, id string, audit AuditRow) (AuditRow, error) {
+	if err := audit.Validate(); err != nil {
+		return AuditRow{}, err
+	}
+	return s.store.Update(ctx, id, audit)
 }
 
 func (s *AuditsService) Delete(ctx context.Context, id string) error {

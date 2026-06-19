@@ -5,6 +5,7 @@ import "context"
 type AuditsStore interface {
 	List(ctx context.Context) ([]AuditRow, error)
 	Get(ctx context.Context, id string) (AuditRow, bool, error)
-	Write(ctx context.Context, audit AuditRow) (AuditRow, error)
+	Create(ctx context.Context, audit AuditRow) (AuditRow, error)
+	Update(ctx context.Context, id string, audit AuditRow) (AuditRow, error)
 	Delete(ctx context.Context, id string) error
 }

@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type AuditRow struct {
 	ID          string `json:"id"`
-	Timestamp   int64  `json:"timestamp"`
+	Timestamp   string `json:"timestamp"`
 	Action      string `json:"action"`
 	User        string `json:"user"`
 	Resource    string `json:"resource"`
@@ -19,12 +22,10 @@ type AuditRow struct {
 // Validate checks if the AuditRow has all required fields and if the action is valid. It returns an error if any validation fails.
 func (a *AuditRow) Validate() error {
 	if a.ID == "" {
-		return fmt.Errorf("id is required")
+		a.ID = uuid.New().String()
 	}
 
-	if a.Timestamp == 0 {
-		return fmt.Errorf("timestamp is required")
-	}
+	a.Timestamp = time.Now().Format(time.RFC3339Nano)
 
 	a.Action = strings.ToLower(a.Action)
 	if !slices.Contains([]string{

@@ -2,6 +2,7 @@ package api
 
 import (
 	"log/slog"
+	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
@@ -20,8 +21,9 @@ func LoadRoutes(ep *mux.Router, store audits.AuditsStore) {
 	slog.Info("adding API routes for audits endpoints")
 	_apiv1 := ep.PathPrefix("/api/v1/").Subrouter()
 
-	_apiv1.HandleFunc("/audits", api_v1_audits_list).Methods("GET")
-	_apiv1.HandleFunc("/audits/{id}", api_v1_audits_get).Methods("GET")
-	_apiv1.HandleFunc("/audits", api_v1_audits_write).Methods("POST", "PUT")
-	_apiv1.HandleFunc("/audits/{id}", api_v1_audits_delete).Methods("DELETE")
+	_apiv1.HandleFunc("/audits", api_v1_audits_list).Methods(http.MethodGet)
+	_apiv1.HandleFunc("/audits/{id}", api_v1_audits_get).Methods(http.MethodGet)
+	_apiv1.HandleFunc("/audits", api_v1_audits_create).Methods(http.MethodPost)
+	_apiv1.HandleFunc("/audits/{id}", api_v1_audits_update).Methods(http.MethodPut, http.MethodPatch)
+	_apiv1.HandleFunc("/audits/{id}", api_v1_audits_delete).Methods(http.MethodDelete)
 }
