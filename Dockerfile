@@ -13,7 +13,7 @@ ENV GOOS=linux
 # START BUILD
 RUN mkdir -p /ea-bin
 RUN go mod download 
-RUN go build -tags "libsqlite3 darwin amd64" -o /ea-bin/easy-audit /github.com/jnnkrdb/easy-audit/cmd/server/main.go
+RUN go build -o /ea-bin/easy-audit /github.com/jnnkrdb/easy-audit/cmd/server/main.go
 RUN go build -o /ea-bin/eactl /github.com/jnnkrdb/easy-audit/cmd/cli/main.go
 # ---------------------------------------------------------------------------------------------- Final Alpine
 FROM alpine:3.22.0
