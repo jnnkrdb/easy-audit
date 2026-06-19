@@ -7,7 +7,7 @@ WORKDIR /github.com/jnnkrdb/easy-audit
 # copy the code files
 COPY . ./
 # set env vars
-ENV CGO_ENABLED=0
+ENV CGO_ENABLED=1
 ENV GOARCH=amd64
 ENV GOOS=linux
 # START BUILD
