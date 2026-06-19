@@ -26,10 +26,7 @@ RUN apk add --no-cache --update openssl
 # Copy the Directory Contents
 RUN mkdir /opt/easy-audit &&\
     mkdir /opt/easy-audit/config &&\
-    mkdir /opt/easy-audit/data &&\
-    mkdir /opt/easy-audit/logs &&\
-    mkdir /opt/easy-audit/certs &&\
-    mkdir /opt/easy-audit/keys
+    mkdir /opt/easy-audit/data 
 
 # create user with home dir
 RUN addgroup -S easy-audit && adduser -S easy-audit -H -h /opt/easy-audit -s /bin/sh -G easy-audit -u 3453
