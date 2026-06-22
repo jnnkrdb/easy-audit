@@ -42,5 +42,5 @@ push: build ## Push docker image with the manager.
 	
 .PHONY: run
 run: build ## Run docker image with the manager.
-	docker run ${REPOSITORY}:${TAG} --rm -p 80:80
+	docker run -d --rm -p 80:80 ${REPOSITORY}:${TAG} easy-audit --log-level=debug --verbose --log-format=text --database-dsn="file:/data/audits.db" --database-driver=sqlite
 
