@@ -21,6 +21,12 @@ var (
 	// http endpoint
 	mx *mux.Router = mux.NewRouter()
 
+	// logging
+	logLevel   = flag.String("log-level", "error", "Set the log level (debug, info, warn, error)")
+	logVerbose = flag.Bool("verbose", false, "Prints the source of logs when set to true.")
+	logFormat  = flag.String("log-format", "text", "Set the log format (text, json)")
+
+	// database connection
 	databaseDriver = flag.String("database-driver", "sqlite3", "which database driver should be used for storage (e.g. sqlite3, postgres, mysql, etc.)")
 	databaseDsn    = flag.String("database-dsn", "file:/opt/easy-audit/data/audits.db", "the data source name (DSN) for the database connection, format depends on the driver (e.g. for sqlite3: file:audits.db?cache=shared&mode=rwc, for postgres: user=postgres password=postgres dbname=audits sslmode=disable)")
 )
@@ -34,7 +40,7 @@ func main() {
 
 	flag.Parse()
 
-	logging.InitLogger()
+	logging.InitLogger(*logLevel, *logVerbose, *logFormat)
 
 	slog.Info("connecting to database", "driver", *databaseDriver, "dsn", *databaseDsn)
 

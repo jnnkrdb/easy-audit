@@ -1,27 +1,21 @@
 package logging
 
 import (
-	"flag"
 	"log/slog"
 	"os"
 )
 
-var (
-	// logging
-	logLevel   = flag.String("log-level", "error", "Set the log level (debug, info, warn, error)")
-	logVerbose = flag.Bool("verbose", false, "Prints the source of logs when set to true.")
-	logFormat  = flag.String("log-format", "text", "Set the log format (text, json)")
-)
+var ()
 
 // initializes the logger with default settings.
-func InitLogger() {
+func InitLogger(level string, verbose bool, format string) {
 
 	// configure logging
 	var opts = &slog.HandlerOptions{
-		AddSource: logVerbose != nil && *logVerbose,
+		AddSource: verbose,
 		Level:     slog.LevelError, // default log level is error, can be overridden by cli flag --log-level
 	}
-	switch *logLevel {
+	switch level {
 	case "info":
 		opts.Level = slog.LevelInfo
 	case "warn":
@@ -30,7 +24,7 @@ func InitLogger() {
 		opts.Level = slog.LevelDebug
 	}
 
-	if *logFormat == "json" {
+	if format == "json" {
 		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, opts)))
 	} else {
 		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, opts)))
