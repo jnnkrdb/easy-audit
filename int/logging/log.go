@@ -5,8 +5,6 @@ import (
 	"os"
 )
 
-var ()
-
 // initializes the logger with default settings.
 func InitLogger(level string, verbose bool, format string) {
 
