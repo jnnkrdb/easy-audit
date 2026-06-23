@@ -6,7 +6,7 @@ import (
 )
 
 // initializes the logger with default settings.
-func InitLogger(level string, verbose bool, format string) {
+func InitLogger(level string, format string, verbose bool) {
 
 	// configure logging
 	var opts = &slog.HandlerOptions{

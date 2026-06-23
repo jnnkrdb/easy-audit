@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
-	"github.com/jnnkrdb/easy-audit/cmd/cli/cfg"
+	"github.com/jnnkrdb/easy-audit/int/cfg"
 	"github.com/spf13/cobra"
 )
 
