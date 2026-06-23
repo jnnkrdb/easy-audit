@@ -17,14 +17,16 @@ cover:
 	go test ./... -coverprofile=coverage.out
 	@echo "coverage written to coverage.out"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------- run cli
 # Define an empty variable for extra args
 ARGS=
+
+# ----------------------------------------------------------------------------------------------------------------------------------------- run cli
+
 .PHONY: cli
 cli: ## Build the CLI binary.
 	@echo "Executing command with: $(ARGS)"
 	@echo "---------------------------------------------------------------------------------"
-	go run cmd/cli/main.go $(ARGS)
+	go run cmd/eactl/main.go $(ARGS)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------- Docker Configs
 
@@ -42,5 +44,7 @@ push: build ## Push docker image with the manager.
 	
 .PHONY: run
 run: build ## Run docker image with the manager.
-	docker run -d --rm -p 80:80 ${REPOSITORY}:${TAG} easy-audit --log-level=debug --verbose --log-format=text --database-dsn="file:/data/audits.db" --database-driver=sqlite
+	@echo "Executing command with: $(ARGS)"
+	@echo "---------------------------------------------------------------------------------"
+	docker run -d --rm -p 80:80 ${REPOSITORY}:${TAG} $(ARGS)
 

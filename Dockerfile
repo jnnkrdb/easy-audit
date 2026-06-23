@@ -12,10 +12,8 @@ ENV CGO_ENABLED=1
 # ENV GOARCH=amd64
 ENV GOOS=linux
 # START BUILD
-RUN mkdir -p /ea-bin
 RUN go mod download 
-RUN go build -a -o /ea-bin/easy-audit /github.com/jnnkrdb/easy-audit/cmd/easy-audit/main.go
-RUN go build -a -o /ea-bin/eactl /github.com/jnnkrdb/easy-audit/cmd/eactl/main.go
+RUN go build -a -o /eactl /github.com/jnnkrdb/easy-audit/cmd/eactl/main.go
 # ---------------------------------------------------------------------------------------------- Final Alpine
 FROM alpine:3.24.1
 LABEL org.opencontainers.image.source="https://github.com/jnnkrdb/easy-audit"
@@ -24,21 +22,15 @@ LABEL org.opencontainers.image.description="Audit Store in Go."
 WORKDIR /
 # install neccessary binaries
 RUN apk add --no-cache --update openssl
-# Copy the Directory Contents
-RUN mkdir /opt/easy-audit &&\
-    mkdir /opt/easy-audit/bin &&\
-    mkdir /opt/easy-audit/config &&\
-    mkdir /opt/easy-audit/data &&\
-    mkdir /opt/easy-audit/home
 # create user with home dir
-RUN addgroup -S easy-audit && adduser -S easy-audit -H -h /opt/easy-audit/home -s /bin/sh -G easy-audit -u 3453
+RUN mkdir /var/easy-audit 
+RUN addgroup -S easy-audit && adduser -S easy-audit -H -h /var/easy-audit -s /bin/sh -G easy-audit -u 3453
+RUN chmod 700 -R /var/easy-audit && chown easy-audit:easy-audit -R /var/easy-audit
+VOLUME /var/easy-audit
 # Copy Binary
-COPY --from=builder /ea-bin/* /opt/easy-audit/bin/
-RUN chmod 700 -R /opt/easy-audit &&\
-    chmod 755 -R /opt/easy-audit/bin &&\
-    chown easy-audit:easy-audit -R /opt/easy-audit
+COPY --from=builder --chmod=755 --chown=easy-audit:easy-audit /eactl /usr/local/bin/eactl
 # change to required user
 USER easy-audit:easy-audit
 # set the entrypoints
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD [ "easy-audit"]
+CMD [ "eactl", "serve"]

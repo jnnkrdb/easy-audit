@@ -1,4 +1,4 @@
-package server
+package serve
 
 import (
 	"database/sql"
@@ -9,8 +9,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
-	"github.com/jnnkrdb/easy-audit/cmd/easy-audit/cmd/server/api"
-	"github.com/jnnkrdb/easy-audit/cmd/easy-audit/cmd/server/health"
+	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/api"
+	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/health"
 	"github.com/spf13/cobra"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -32,37 +32,14 @@ var (
 func init() {
 
 	// datasource configs
-	ServerCmd.Flags().StringVarP(
-		&databaseDriver,
-		"database-driver",
-		"db-d",
-		"sqlite3",
+	ServeCmd.Flags().StringVarP(&databaseDriver, "database-driver", "db-d", "sqlite3",
 		"which database driver should be used for storage (e.g. sqlite3, postgres, mysql, etc.)")
-	ServerCmd.Flags().StringVarP(
-		&databaseDsn,
-		"database-dsn",
-		"db-dsn",
-		"file:/opt/easy-audit/data/audits.db",
-		`the data source name (DSN) for the database connection, format depends on the driver 
-		(e.g. for sqlite3: file:audits.db?cache=shared&mode=rwc, 
-		for postgres: user=postgres password=postgres dbname=audits sslmode=disable)`)
 
-	// host configs
-	ServerCmd.Flags().StringVarP(
-		&serverAddress,
-		"server-address",
-		"h",
-		"0.0.0.0",
-		"the address on which the server should listen for incoming requests")
-	ServerCmd.Flags().IntVarP(
-		&serverPort,
-		"server-port",
-		"p",
-		80,
-		"the port on which the server should listen for incoming requests")
+	ServeCmd.Flags().StringVarP(&databaseDsn, "database-dsn", "db-dsn", "file:audits.db",
+		`the data source name for the database connection, format depends on the driver (e.g. sqlite3: file:audits.db)`)
 }
 
-var ServerCmd = &cobra.Command{
+var ServeCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the easy-audit server",
 	Long:  `Start the easy-audit server with the specified args, to manage and retrieve audit data.`,
