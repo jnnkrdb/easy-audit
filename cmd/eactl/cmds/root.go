@@ -2,11 +2,7 @@ package cmds
 
 import (
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client/delete"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client/get"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client/list"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client/patch"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client/post"
+	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve"
 	"github.com/jnnkrdb/easy-audit/pkg/logging"
 	"github.com/spf13/cobra"
@@ -50,9 +46,9 @@ func init() {
 	RootCmd.AddCommand(serve.ServeCmd)
 
 	// client operations
-	RootCmd.AddCommand(list.ListCmd)
-	RootCmd.AddCommand(get.GetCmd)
-	RootCmd.AddCommand(post.PostCmd)
-	RootCmd.AddCommand(patch.PatchCmd)
-	RootCmd.AddCommand(delete.DeleteCmd)
+	RootCmd.AddCommand(client.ListCmd)
+	RootCmd.AddCommand(client.GetCmd)
+	RootCmd.AddCommand(client.PostCmd)
+	RootCmd.AddCommand(client.PatchCmd)
+	RootCmd.AddCommand(client.DeleteCmd)
 }

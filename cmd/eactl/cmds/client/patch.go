@@ -1,10 +1,16 @@
-package patch
+package client
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
+
+func init() {
+
+	// add the default category flags to the patch command
+	AddCategoryFlags(PatchCmd)
+}
 
 var PatchCmd = &cobra.Command{
 	Use:   "patch",
@@ -13,7 +19,4 @@ var PatchCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("not implemented")
 	},
-}
-
-func init() {
 }

@@ -2,5 +2,21 @@
 	"image": "mcr.microsoft.com/devcontainers/go",
   "features": {
     "ghcr.io/jungaretti/features/make:1": {}
+  },
+  "containerEnv": {
+    "CGO_ENABLED": "1"
+  },  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "golang.go",
+        "vue.volar",
+        "kennylong.kubernetes-yaml-formatter",
+        "echoapi.echoapi-for-vscode",
+        "dbaeumer.vscode-eslint",
+        "yy0931.vscode-sqlite3-editor"
+      ]
+    }
   }
 }

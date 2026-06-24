@@ -11,7 +11,7 @@ func AddCategoryFlags(c *cobra.Command) {
 }
 
 // get the correct protocol based on the insecure flag
-func GetProtocol() string {
+func getProtocol() string {
 	if Insecure {
 		return "http"
 	} else {

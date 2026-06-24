@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
+	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/api"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/health"
 	"github.com/spf13/cobra"
@@ -20,10 +21,6 @@ var (
 	// http endpoint
 	mx *mux.Router = mux.NewRouter()
 
-	// host configs
-	serverAddress string
-	serverPort    int
-
 	// db configs
 	databaseDriver string
 	databaseDsn    string
@@ -32,10 +29,10 @@ var (
 func init() {
 
 	// datasource configs
-	ServeCmd.Flags().StringVarP(&databaseDriver, "database-driver", "db-d", "sqlite3",
+	ServeCmd.Flags().StringVarP(&databaseDriver, "database-driver", "r", "sqlite3",
 		"which database driver should be used for storage (e.g. sqlite3, postgres, mysql, etc.)")
 
-	ServeCmd.Flags().StringVarP(&databaseDsn, "database-dsn", "db-dsn", "file:audits.db",
+	ServeCmd.Flags().StringVarP(&databaseDsn, "database-datasourcename", "s", "file:audits.db",
 		`the data source name for the database connection, format depends on the driver (e.g. sqlite3: file:audits.db)`)
 }
 
@@ -66,11 +63,11 @@ var ServeCmd = &cobra.Command{
 		// register routes for health checks
 		health.LoadRoutes(mx)
 
-		slog.Info("starting http server", "addr", serverAddress, "port", serverPort)
+		slog.Info("starting http server", "addr", cfg.Address, "port", cfg.Port)
 
 		if err := (&http.Server{
 			Handler:      mx,
-			Addr:         fmt.Sprintf("%s:%d", serverAddress, serverPort),
+			Addr:         fmt.Sprintf("%s:%d", cfg.Address, cfg.Port),
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
 		}).ListenAndServe(); err != nil {
