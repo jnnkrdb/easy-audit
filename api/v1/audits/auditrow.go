@@ -50,6 +50,27 @@ func (a AuditRow) Validate() error {
 	return nil
 }
 
+func (a *AuditRow) UpdateFrom(t AuditRow) {
+	if t.Timestamp != "" && t.Timestamp != a.Timestamp {
+		a.Timestamp = t.Timestamp
+	}
+	if t.Action != "" && t.Action != a.Action {
+		a.Action = t.Action
+	}
+	if t.User != "" && t.User != a.User {
+		a.User = t.User
+	}
+	if t.Resource != "" && t.Resource != a.Resource {
+		a.Resource = t.Resource
+	}
+	if t.Result != "" && t.Result != a.Result {
+		a.Result = t.Result
+	}
+	if t.FurtherInfo != "" && t.FurtherInfo != a.FurtherInfo {
+		a.FurtherInfo = t.FurtherInfo
+	}
+}
+
 // print a string of the object
 func (a AuditRow) GoString() string {
 	return fmt.Sprintf("%#v", a)

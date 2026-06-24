@@ -1,6 +1,8 @@
 package apiV1Audits
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -32,4 +34,27 @@ func HandleDelete(auditsService *audits.AuditsService) http.HandlerFunc {
 	}
 }
 
-// execute an http get request against the given url and return the response body as a byte slice
+// execute an http delete request
+func SendDelete(ctx context.Context, host string, id string) error {
+
+	var url = fmt.Sprintf("%s%s/%s", host, GetApiSubPath(), id)
+
+	// create a new HTTP DELETE request
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, url, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create delete request: %w", err)
+	}
+
+	// send the delete request to the server and handle the response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to delete audits: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to delete audits: %s", resp.Status)
+	}
+
+	return nil
+}

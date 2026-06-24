@@ -1,7 +1,9 @@
 package apiV1Audits
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -49,4 +51,32 @@ func HandleGet(auditsService *audits.AuditsService) http.HandlerFunc {
 	}
 }
 
-// execute an http get request against the given url and return the response body as a byte slice
+// execute an http get request
+func SendGet(ctx context.Context, host string, id string) (audits.AuditRow, error) {
+
+	var auditRow = audits.AuditRow{}
+	var url = fmt.Sprintf("%s%s/%s", host, GetApiSubPath(), id)
+
+	// create a new HTTP GET request
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to create get request: %w", err)
+	}
+
+	// send the get request to the server and handle the response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to get audit: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return audits.AuditRow{}, fmt.Errorf("failed to get audit: %s", resp.Status)
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&auditRow); err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to decode audit: %w", err)
+	}
+
+	return auditRow, nil
+}

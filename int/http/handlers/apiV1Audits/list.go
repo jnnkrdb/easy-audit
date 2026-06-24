@@ -1,7 +1,9 @@
 package apiV1Audits
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -29,4 +31,32 @@ func HandleList(auditsService *audits.AuditsService) http.HandlerFunc {
 	}
 }
 
-// execute an http get request against the given url and return the response body as a byte slice
+// execute an http list request
+func SendList(ctx context.Context, host string) (audits.AuditRows, error) {
+
+	var auditRows = audits.AuditRows{}
+	var url = fmt.Sprintf("%s%s", host, GetApiSubPath())
+
+	// create a new HTTP GET request
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return audits.AuditRows{}, fmt.Errorf("failed to create list request: %w", err)
+	}
+
+	// send the list request to the server and handle the response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return audits.AuditRows{}, fmt.Errorf("failed to list audits: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return audits.AuditRows{}, fmt.Errorf("failed to list audits: %s", resp.Status)
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&auditRows); err != nil {
+		return audits.AuditRows{}, fmt.Errorf("failed to decode audits: %w", err)
+	}
+
+	return auditRows, nil
+}

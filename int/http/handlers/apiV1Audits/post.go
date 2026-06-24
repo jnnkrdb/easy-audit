@@ -1,7 +1,10 @@
 package apiV1Audits
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -36,4 +39,38 @@ func HandlePost(auditsService *audits.AuditsService) http.HandlerFunc {
 	}
 }
 
-// execute an http get request against the given url and return the response body as a byte slice
+// execute an http post request
+func SendPost(ctx context.Context, host string, audit audits.AuditRow) (audits.AuditRow, error) {
+
+	var auditRow = audits.AuditRow{}
+	var url = fmt.Sprintf("%s%s", host, GetApiSubPath())
+
+	// create an io.Writer from the audit object to send as the request body
+	body, err := json.Marshal(audit)
+	if err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to marshal audit: %w", err)
+	}
+
+	// create a new HTTP POST request
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to create post request: %w", err)
+	}
+
+	// send the post request to the server and handle the response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to post audit: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return audits.AuditRow{}, fmt.Errorf("failed to post audit: %s", resp.Status)
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&auditRow); err != nil {
+		return audits.AuditRow{}, fmt.Errorf("failed to decode audit: %w", err)
+	}
+
+	return auditRow, nil
+}
