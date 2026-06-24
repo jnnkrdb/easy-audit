@@ -11,7 +11,7 @@ import (
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
 	"github.com/jnnkrdb/easy-audit/int/http/handlers/apiV1Audits"
-	"github.com/jnnkrdb/easy-audit/int/http/handlers/health"
+	"github.com/jnnkrdb/easy-audit/pkg/http/probez"
 	"github.com/spf13/cobra"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -62,8 +62,9 @@ var ServeCmd = &cobra.Command{
 		// register routes for audits
 		apiV1Audits.LoadRoutes(apiHandler, store)
 
-		// register routes for health checks
-		health.LoadRoutes(mx)
+		// register routes and functions for health checks
+		mx.HandleFunc("/health/livez", probez.HandleHTTP()).Methods("GET")
+		mx.HandleFunc("/health/readyz", probez.HandleHTTP()).Methods("GET")
 
 		slog.Info("starting http server", "addr", cfg.Address, "port", cfg.Port)
 

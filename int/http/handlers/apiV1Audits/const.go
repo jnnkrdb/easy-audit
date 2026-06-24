@@ -25,7 +25,7 @@ func GetApiSubPath() string {
 // It sets up a logging middleware to log details of each request and response,
 // and then loads the specific routes for the key-value store API endpoints.
 //
-// Pathprefix: <...>/api/v1
+// Pathprefix: /api/v1/audits
 func LoadRoutes(router *mux.Router, store audits.AuditsStore) {
 
 	slog.Info("setting audits store for API handlers")
