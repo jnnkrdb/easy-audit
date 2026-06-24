@@ -31,6 +31,7 @@ VOLUME /var/easy-audit
 COPY --from=builder --chmod=755 --chown=easy-audit:easy-audit /eactl /usr/local/bin/eactl
 # change to required user
 USER easy-audit:easy-audit
+WORKDIR /var/easy-audit
 # set the entrypoints
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD [ "eactl", "serve"]
