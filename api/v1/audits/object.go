@@ -2,38 +2,42 @@ package audits
 
 import (
 	"fmt"
-	"slices"
-	"strings"
 	"time"
-
-	"github.com/google/uuid"
 )
 
+// used to return a list of audits in the API response
+type AuditRows struct {
+	Items []AuditRow `json:"items"`
+}
+
+// used to return a single audit in the API response
 type AuditRow struct {
-	ID          string `json:"id"`
+
+	// used to identify a specific audit row in the database
+	ID string `json:"id"`
+
+	// data fields for the audit row
 	Timestamp   string `json:"timestamp"`
 	Action      string `json:"action"`
 	User        string `json:"user"`
 	Resource    string `json:"resource"`
 	Result      string `json:"result"`
 	FurtherInfo string `json:"further_info"`
+
+	// timestamps for when the audit row was created and last updated
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Validate checks if the AuditRow has all required fields and if the action is valid. It returns an error if any validation fails.
-func (a *AuditRow) Validate() error {
-	if a.ID == "" {
-		a.ID = uuid.New().String()
+func (a AuditRow) Validate() error {
+
+	if a.Timestamp == "" {
+		return fmt.Errorf("timestamp is required")
 	}
 
-	a.Timestamp = time.Now().Format(time.RFC3339Nano)
-
-	a.Action = strings.ToLower(a.Action)
-	if !slices.Contains([]string{
-		"read",
-		"write",
-		"delete",
-	}, a.Action) {
-		return fmt.Errorf("invalid action: %s", a.Action)
+	if a.Action == "" {
+		return fmt.Errorf("action is required")
 	}
 
 	if a.User == "" {

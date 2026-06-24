@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -15,6 +18,8 @@ const (
 	sql_fieldname_resource     = "resource"
 	sql_fieldname_result       = "result"
 	sql_fieldname_further_info = "further_info"
+	sql_fieldname_created_at   = "created_at"
+	sql_fieldname_updated_at   = "updated_at"
 
 	sql_table_name = "audits_v1"
 )
@@ -33,13 +38,15 @@ func NewSQLTx(db *sql.DB) (*SQLTx, error) {
 
 	createTableQuery := fmt.Sprintf(`
 	CREATE TABLE IF NOT EXISTS %s (
-		%s TEXT PRIMARY KEY,
+		%s TEXT NOT NULL PRIMARY KEY,
 		%s TEXT NOT NULL,
 		%s TEXT NOT NULL,
 		%s TEXT NOT NULL,
 		%s TEXT NOT NULL,
 		%s TEXT NOT NULL,
-		%s TEXT NOT NULL
+		%s TEXT NOT NULL,
+		%s DATETIME DEFAULT CURRENT_TIMESTAMP,
+		%s DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
 	`, sql_table_name,
 		sql_fieldname_id,
@@ -49,6 +56,8 @@ func NewSQLTx(db *sql.DB) (*SQLTx, error) {
 		sql_fieldname_resource,
 		sql_fieldname_result,
 		sql_fieldname_further_info,
+		sql_fieldname_created_at,
+		sql_fieldname_updated_at,
 	)
 
 	if _, err := db.Exec(createTableQuery); err != nil {
@@ -68,9 +77,9 @@ func NewSQLTx(db *sql.DB) (*SQLTx, error) {
 // required interface functions
 
 // list the audit rows in the database and return them as a slice of AuditRow structs
-func (s *SQLTx) List(ctx context.Context) ([]AuditRow, error) {
-	var audits []AuditRow
-	var query = fmt.Sprintf("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s",
+func (s *SQLTx) List(ctx context.Context) (AuditRows, error) {
+	var audits = AuditRows{Items: []AuditRow{}}
+	var query = fmt.Sprintf("SELECT %s, %s, %s, %s, %s, %s, %s, %s, %s FROM %s",
 		sql_fieldname_id,
 		sql_fieldname_timestamp,
 		sql_fieldname_action,
@@ -78,12 +87,14 @@ func (s *SQLTx) List(ctx context.Context) ([]AuditRow, error) {
 		sql_fieldname_resource,
 		sql_fieldname_result,
 		sql_fieldname_further_info,
+		sql_fieldname_created_at,
+		sql_fieldname_updated_at,
 		sql_table_name,
 	)
 
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list audit rows: %w", err)
+		return audits, fmt.Errorf("failed to list audit rows: %w", err)
 	}
 	defer rows.Close()
 
@@ -97,14 +108,16 @@ func (s *SQLTx) List(ctx context.Context) ([]AuditRow, error) {
 			&audit.Resource,
 			&audit.Result,
 			&audit.FurtherInfo,
+			&audit.CreatedAt,
+			&audit.UpdatedAt,
 		); err != nil {
-			return nil, fmt.Errorf("failed to scan audit row: %w", err)
+			return audits, fmt.Errorf("failed to scan audit row: %w", err)
 		}
-		audits = append(audits, audit)
+		audits.Items = append(audits.Items, audit)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating over audit rows: %w", err)
+		return audits, fmt.Errorf("error iterating over audit rows: %w", err)
 	}
 
 	return audits, nil
@@ -113,7 +126,7 @@ func (s *SQLTx) List(ctx context.Context) ([]AuditRow, error) {
 // get a single audit row by its ID and return it as an AuditRow struct, along with a boolean indicating if the row was found
 func (s *SQLTx) Get(ctx context.Context, id string) (AuditRow, bool, error) {
 	var audit AuditRow
-	var query = fmt.Sprintf("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
+	var query = fmt.Sprintf("SELECT %s, %s, %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
 		sql_fieldname_id,
 		sql_fieldname_timestamp,
 		sql_fieldname_action,
@@ -121,6 +134,8 @@ func (s *SQLTx) Get(ctx context.Context, id string) (AuditRow, bool, error) {
 		sql_fieldname_resource,
 		sql_fieldname_result,
 		sql_fieldname_further_info,
+		sql_fieldname_created_at,
+		sql_fieldname_updated_at,
 		sql_table_name,
 		sql_fieldname_id,
 	)
@@ -134,6 +149,8 @@ func (s *SQLTx) Get(ctx context.Context, id string) (AuditRow, bool, error) {
 		&audit.Resource,
 		&audit.Result,
 		&audit.FurtherInfo,
+		&audit.CreatedAt,
+		&audit.UpdatedAt,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return AuditRow{}, false, nil
@@ -150,7 +167,7 @@ func (s *SQLTx) Create(ctx context.Context, newAudit AuditRow) (AuditRow, error)
 		return AuditRow{}, fmt.Errorf("failed to validate new audit row: %w", err)
 	}
 
-	var query = fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?)",
+	var query = fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		sql_table_name,
 		sql_fieldname_id,
 		sql_fieldname_timestamp,
@@ -159,21 +176,36 @@ func (s *SQLTx) Create(ctx context.Context, newAudit AuditRow) (AuditRow, error)
 		sql_fieldname_resource,
 		sql_fieldname_result,
 		sql_fieldname_further_info,
+		sql_fieldname_created_at,
+		sql_fieldname_updated_at,
 	)
 
+	now := time.Now()
+	newID := uuid.New().String()
 	_, err := s.db.ExecContext(ctx, query,
-		newAudit.ID,
+		newID,
 		newAudit.Timestamp,
 		newAudit.Action,
 		newAudit.User,
 		newAudit.Resource,
 		newAudit.Result,
 		newAudit.FurtherInfo,
+		now,
+		now,
 	)
 	if err != nil {
 		return AuditRow{}, fmt.Errorf("failed to create new audit row: %w", err)
 	}
-	return newAudit, nil
+
+	resultaudit, found, err := s.Get(ctx, newID)
+	if err != nil {
+		return AuditRow{}, fmt.Errorf("failed to retrieve newly created audit [%s] row: %w", newID, err)
+	}
+	if !found {
+		return AuditRow{}, fmt.Errorf("newly created audit [%s] row not found", newID)
+	}
+
+	return resultaudit, nil
 }
 
 // update an existing audit row in the database and return the updated row as an AuditRow struct
@@ -183,7 +215,7 @@ func (s *SQLTx) Update(ctx context.Context, id string, updatedAudit AuditRow) (A
 		return AuditRow{}, fmt.Errorf("failed to validate updated audit row: %w", err)
 	}
 
-	var query = fmt.Sprintf("UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
+	var query = fmt.Sprintf("UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
 		sql_table_name,
 		sql_fieldname_timestamp,
 		sql_fieldname_action,
@@ -191,6 +223,7 @@ func (s *SQLTx) Update(ctx context.Context, id string, updatedAudit AuditRow) (A
 		sql_fieldname_resource,
 		sql_fieldname_result,
 		sql_fieldname_further_info,
+		sql_fieldname_updated_at,
 		sql_fieldname_id,
 	)
 
@@ -201,16 +234,27 @@ func (s *SQLTx) Update(ctx context.Context, id string, updatedAudit AuditRow) (A
 		updatedAudit.Resource,
 		updatedAudit.Result,
 		updatedAudit.FurtherInfo,
+		time.Now(),
 		id,
 	)
 	if err != nil {
 		return AuditRow{}, fmt.Errorf("failed to update audit row: %w", err)
 	}
-	return updatedAudit, nil
+
+	resultaudit, found, err := s.Get(ctx, id)
+	if err != nil {
+		return AuditRow{}, fmt.Errorf("failed to retrieve updated audit [%s] row: %w", id, err)
+	}
+	if !found {
+		return AuditRow{}, fmt.Errorf("updated audit [%s] row not found", id)
+	}
+
+	return resultaudit, nil
 }
 
 // delete an audit row from the database by its ID
 func (s *SQLTx) Delete(ctx context.Context, id string) error {
+
 	var query = fmt.Sprintf("DELETE FROM %s WHERE %s = ?",
 		sql_table_name,
 		sql_fieldname_id,

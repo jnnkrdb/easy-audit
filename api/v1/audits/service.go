@@ -12,7 +12,7 @@ func NewAuditsService(store AuditsStore) *AuditsService {
 	}
 }
 
-func (s *AuditsService) List(ctx context.Context) ([]AuditRow, error) {
+func (s *AuditsService) List(ctx context.Context) (AuditRows, error) {
 	return s.store.List(ctx)
 }
 

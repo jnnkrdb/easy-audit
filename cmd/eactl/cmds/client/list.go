@@ -50,14 +50,14 @@ var ListCmd = &cobra.Command{
 				return fmt.Errorf("failed to get audits: %s", resp.Status)
 			}
 
-			var audits = []audits.AuditRow{}
+			var audits = audits.AuditRows{Items: []audits.AuditRow{}}
 			if err := json.NewDecoder(resp.Body).Decode(&audits); err != nil {
 
 				return fmt.Errorf("failed to decode response: %w", err)
 			}
 
 			// Print the audits
-			for _, audit := range audits {
+			for _, audit := range audits.Items {
 
 				slog.Info("audit",
 					"id", audit.ID,
