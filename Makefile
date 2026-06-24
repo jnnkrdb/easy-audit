@@ -28,6 +28,13 @@ cli: ## Build the CLI binary.
 	@echo "---------------------------------------------------------------------------------"
 	go run cmd/eactl/main.go $(ARGS)
 
+.PHONY: serve
+serve: ## Build the CLI binary.
+	@echo "Executing command with: serve -s testdata/audits.db -v --log-level debug"
+	@echo "---------------------------------------------------------------------------------"
+	mkdir -p testdata
+	go run cmd/eactl/main.go serve -s testdata/audits.db -v --log-level debug
+
 # ----------------------------------------------------------------------------------------------------------------------------------------- Docker Configs
 
 REGISTRY ?= localhost:5000

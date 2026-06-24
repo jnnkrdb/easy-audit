@@ -13,10 +13,12 @@ func init() {
 }
 
 var PatchCmd = &cobra.Command{
-	Use:   "patch",
+	Use:   "patch <id>",
 	Short: "Patch audits on the easy-audit server",
 	Long:  `Patch audits on the easy-audit server`,
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		return fmt.Errorf("not implemented")
 	},
 }

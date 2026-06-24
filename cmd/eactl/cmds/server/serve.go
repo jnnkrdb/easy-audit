@@ -1,4 +1,4 @@
-package serve
+package server
 
 import (
 	"database/sql"
@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jnnkrdb/easy-audit/api/v1/audits"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/api"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve/health"
+	"github.com/jnnkrdb/easy-audit/int/http/handlers/apiV1Audits"
+	"github.com/jnnkrdb/easy-audit/int/http/handlers/health"
 	"github.com/spf13/cobra"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -57,8 +57,10 @@ var ServeCmd = &cobra.Command{
 			return err
 		}
 
+		apiHandler := mx.NewRoute().Subrouter()
+
 		// register routes for audits
-		api.LoadRoutes(mx, store)
+		apiV1Audits.LoadRoutes(apiHandler, store)
 
 		// register routes for health checks
 		health.LoadRoutes(mx)

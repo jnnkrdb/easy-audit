@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
@@ -31,31 +30,24 @@ var DeleteCmd = &cobra.Command{
 			audit_id,
 		)
 
-		// send delete request to the server and handle the response
-		if req, err := http.NewRequest(http.MethodDelete, api_v1_audits_url, nil); err != nil {
-
+		// create a new HTTP DELETE request
+		req, err := http.NewRequest(http.MethodDelete, api_v1_audits_url, nil)
+		if err != nil {
 			return fmt.Errorf("failed to create delete request: %w", err)
-
-		} else if resp, err := http.DefaultClient.Do(req); err != nil {
-
-			return fmt.Errorf("failed to delete audits: %w", err)
-
-		} else {
-
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-
-				return fmt.Errorf("failed to delete audits: %s", resp.Status)
-
-			} else {
-
-				slog.Info("Successfully deleted audit",
-					"audit_id", audit_id,
-				)
-			}
 		}
 
+		// send the delete request to the server and handle the response
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return fmt.Errorf("failed to delete audits: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("failed to delete audits: %s", resp.Status)
+		}
+
+		fmt.Println("Successfully deleted audit", audit_id)
 		return nil
 	},
 }

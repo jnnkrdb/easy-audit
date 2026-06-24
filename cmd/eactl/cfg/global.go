@@ -15,6 +15,7 @@ var (
 	LogVerbose bool
 )
 
+// adds the global flags to the given command
 func AddGlobalVars(c *cobra.Command) {
 
 	// host configs

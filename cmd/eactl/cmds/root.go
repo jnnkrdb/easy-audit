@@ -3,7 +3,7 @@ package cmds
 import (
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cfg"
 	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/client"
-	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server/serve"
+	"github.com/jnnkrdb/easy-audit/cmd/eactl/cmds/server"
 	"github.com/jnnkrdb/easy-audit/pkg/logging"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +43,7 @@ func init() {
 	cfg.AddGlobalVars(RootCmd)
 
 	// server operation
-	RootCmd.AddCommand(serve.ServeCmd)
+	RootCmd.AddCommand(server.ServeCmd)
 
 	// client operations
 	RootCmd.AddCommand(client.ListCmd)
